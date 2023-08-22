@@ -1,0 +1,67 @@
+if not game:IsLoaded() then
+	game.Loaded:Wait()
+end
+
+  --Rpg Variables--
+   DS = 75
+   DT = 5
+   RpgTimer = DS
+   Distance = DT
+   RPGTarget = 'None'
+  -----------------
+
+
+  coroutine.resume(coroutine.create(function()
+    RS.RenderStepped:Connect(function()
+        local success, err = pcall(function()
+            if Spin.Text == 'Unspin' and player.Character then
+                player.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(50), 0)
+            end
+
+            if RPGTarget ~= nil then
+                local Launcher = game:GetService('Workspace'):FindFirstChild('Ignored'):FindFirstChild('Launcher') or game:GetService('Workspace'):FindFirstChild('Ignored'):FindFirstChild('MyLauncher')
+                local TargetRPG1 = game:GetService('Workspace').Players:FindFirstChild(RPGTarget)
+                if Launcher and TargetRPG1 then
+                    local TargetRPG = TargetRPG1:FindFirstChild('HumanoidRootPart')
+                    if TargetRPG then
+                        if RpgTimer >= 0 then
+                            Launcher.CFrame = CFrame.new(TargetRPG.Position.X, TargetRPG.Position.Y + 5, TargetRPG.Position.Z)
+                            RpgTimer = RpgTimer - 1
+                        else
+                            Launcher.CFrame = CFrame.new(TargetRPG.Position.X, TargetRPG.Position.Y + Distance, TargetRPG.Position.Z)
+                            Distance = Distance - 1
+                        end
+                    else
+                        RpgTimer = DS 
+                        Distance = DT
+                    end
+                else
+                    RpgTimer = DS 
+                    Distance = DT
+                end
+            end
+RpgLock.MouseButton1Click:Connect(function()
+    local RpgTool = Instance.new('Tool', player.Backpack)
+    RpgTool.ToolTip = 'Click a player to rpg lock them'
+    RpgTool.CanBeDropped = false
+    RpgTool.RequiresHandle = false
+    RpgTool.Name = 'Rpg Lock'
+    
+    RpgTool.Activated:Connect(function()
+        local LowerTorso = mouse.Target.Parent:FindFirstChild('LowerTorso')
+        if not LowerTorso then
+            LowerTorso = mouse.Target.Parent.Parent:FindFirstChild('LowerTorso')
+        end
+        if LowerTorso then
+            if LowerTorso.Parent.Name == 'SpecialParts' then
+                RPGTarget = LowerTorso.Parent.Parent.Parent.Name
+            else
+                RPGTarget = LowerTorso.Parent.Name
+            end
+            notify('Rpg locked onto', RPGTarget, 3)
+        else
+            RPGTarget = nil
+            notify('Rpg unlocked', '', 3)
+        end
+    end)
+end)
